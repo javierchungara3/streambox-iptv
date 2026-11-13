@@ -4,8 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>StreamBox IPTV</title>
-  <link href="https://zencdn.net" rel="stylesheet" />
-  <script src="https://zencdn.net"></script>
+  <script>
+    var p = "https:" + "//";
+    var cdn = p + "vjs.zencdn.net/8.10.0/";
+    document.write('<link href="' + cdn + 'video-js.css" rel="stylesheet">');
+    document.write('<script src="' + cdn + 'video.min.js"><\/script>');
+  </script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
     body { background: #0f172a; color: #f8fafc; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
@@ -58,9 +62,9 @@
       <h3 style="font-size:1rem;">Agregar Canal o Lista</h3>
       <p style="font-size:0.75rem; color:#38bdf8;">1. Enlace directo .m3u8:</p>
       <input type="text" id="inName" placeholder="Nombre (Ej. DW Español)">
-      <input type="url" id="inUrl" placeholder="https://.../stream.m3u8">
+      <input type="url" id="inUrl" placeholder="Enlace .m3u8 del canal">
       <p style="font-size:0.75rem; color:#38bdf8; margin-top:4px;">2. Lista M3U (URL o texto):</p>
-      <input type="url" id="inM3uUrl" placeholder="https://.../lista.m3u">
+      <input type="url" id="inM3uUrl" placeholder="Enlace de lista .m3u">
       <textarea id="inM3uText" rows="3" placeholder="O pega aqui el contenido #EXTM3U"></textarea>
       <div id="errMsg" style="font-size:0.75rem; color:#f87171;"></div>
       <div class="modal-btns">
@@ -71,11 +75,12 @@
   </div>
 
   <script>
+    var proto = "https:" + "//";
     var defaultList = [
-      { name: "Mux Test Stream (HD)", group: "Pruebas", url: "https://mux.dev" },
-      { name: "DW Español En Vivo", group: "Noticias", url: "https://akamaized.net" },
-      { name: "Sintel Pelicula Demo", group: "Cine", url: "https://akamaihd.net" },
-      { name: "Red Bull TV En Vivo", group: "Deportes", url: "https://akamaized.net" }
+      { name: "Mux Test Stream (HD)", group: "Pruebas", url: proto + "test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" },
+      { name: "DW Español En Vivo", group: "Noticias", url: proto + "dwamdstream104.akamaized.net/hls/live/2015530/dwstream104/index.m3u8" },
+      { name: "Sintel Pelicula Demo", group: "Cine", url: proto + "bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8" },
+      { name: "Red Bull TV En Vivo", group: "Deportes", url: proto + "rbmn-live.akamaized.net/hls/live/590964/BoRB-AT/master.m3u8" }
     ];
 
     var channels = [];
@@ -91,7 +96,7 @@
         });
       }
       try {
-        var saved = localStorage.getItem("iptv_v6");
+        var saved = localStorage.getItem("iptv_v8");
         channels = saved ? JSON.parse(saved) : defaultList.slice();
       } catch (e) { channels = defaultList.slice(); }
       renderCats();
@@ -162,7 +167,7 @@
 
     function removeChannel(index) {
       channels.splice(index, 1);
-      localStorage.setItem("iptv_v6", JSON.stringify(channels));
+      localStorage.setItem("iptv_v8", JSON.stringify(channels));
       renderCats(); renderList();
     }
 
@@ -186,7 +191,7 @@
 
       if (url) {
         channels.unshift({ name: name || "Canal En Vivo", group: "Mis Enlaces", url: url });
-        localStorage.setItem("iptv_v6", JSON.stringify(channels));
+        localStorage.setItem("iptv_v8", JSON.stringify(channels));
         activeCat = "Todos"; renderCats(); renderList();
         playStream({ name: name || "Canal En Vivo", url: url });
         closeModal();
@@ -217,7 +222,7 @@
       }
       if (list.length === 0) { document.getElementById("errMsg").textContent = "Lista vacia o invalida."; return; }
       channels = list;
-      localStorage.setItem("iptv_v6", JSON.stringify(channels));
+      localStorage.setItem("iptv_v8", JSON.stringify(channels));
       activeCat = "Todos"; renderCats(); renderList(); closeModal();
     }
   </script>
