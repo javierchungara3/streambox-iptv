@@ -4,17 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>StreamBox IPTV</title>
-  <script src="https://jsdelivr.net"></script>
+  <script src="https://cloudflare.com"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
     body { background: #0f172a; color: #f8fafc; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
     header { background: #1e293b; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
     .logo { font-size: 1.1rem; font-weight: bold; color: #38bdf8; }
     .logo span { color: #ffffff; }
-    .btn-add { background: #2563eb; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; font-size: 0.8rem; cursor: pointer; }
-    .player-box { width: 100%; background: #000; position: relative; height: 220px; display: flex; align-items: center; justify-content: center; }
-    video { width: 100%; height: 100%; background: #000; }
-    .status-bar { background: #162032; padding: 8px 14px; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+    .btn-add { background: #2563eb; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; font-size: 0.8rem; }
+    .player-box { width: 100%; background: #000; position: relative; height: 220px; }
+    video { width: 100%; height: 100%; background: #000; display: block; }
+    .status-bar { background: #162032; padding: 8px 14px; font-size: 0.82rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
     .live-tag { background: #dc2626; color: #fff; font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; }
     .controls { padding: 10px 14px; background: #0f172a; border-bottom: 1px solid #334155; display: flex; flex-direction: column; gap: 8px; }
     .search-input { width: 100%; padding: 9px 12px; border-radius: 6px; border: 1px solid #334155; background: #1e293b; color: #fff; font-size: 0.9rem; }
@@ -41,7 +41,7 @@
     <button class="btn-add" onclick="openModal()">+ Agregar M3U8</button>
   </header>
   <div class="player-box">
-    <video id="player" controls playsinline webkit-playsinline></video>
+    <video id="player" controls playsinline></video>
   </div>
   <div class="status-bar">
     <span id="nowTitle" style="font-weight:bold;">Toca un canal para reproducir</span>
@@ -56,7 +56,7 @@
     <div class="modal-box">
       <h3 style="font-size:1rem;">Agregar Canal o Lista</h3>
       <p style="font-size:0.75rem; color:#38bdf8;">1. Enlace directo .m3u8:</p>
-      <input type="text" id="inName" placeholder="Nombre (Ej. DW Español)">
+      <input type="text" id="inName" placeholder="Nombre (Ej. Mi Canal)">
       <input type="url" id="inUrl" placeholder="https://.../stream.m3u8">
       <p style="font-size:0.75rem; color:#38bdf8; margin-top:4px;">2. Lista M3U (URL o texto):</p>
       <input type="url" id="inM3uUrl" placeholder="https://.../lista.m3u">
@@ -72,7 +72,7 @@
   <script>
     var defaultList = [
       { name: "Mux Test Stream (HD)", group: "Pruebas", url: "https://mux.dev" },
-      { name: "DW Español En Vivo", group: "Noticias", url: "https://akamaized.net" },
+      { name: "Big Buck Bunny HLS", group: "Cine", url: "https://akamaihd.net" },
       { name: "Sintel Pelicula Demo", group: "Cine", url: "https://akamaihd.net" },
       { name: "Red Bull TV En Vivo", group: "Deportes", url: "https://akamaized.net" }
     ];
@@ -85,11 +85,14 @@
 
     function startApp() {
       try {
-        var saved = localStorage.getItem("iptv_v3");
+        var saved = localStorage.getItem("iptv_v4");
         channels = saved ? JSON.parse(saved) : defaultList.slice();
       } catch (e) { channels = defaultList.slice(); }
       renderCats();
       renderList();
+      if (typeof Hls === "undefined") {
+        document.getElementById("nowTitle").textContent = "Aviso: Sin conexion a motor HLS";
+      }
     }
 
     function renderCats() {
@@ -141,41 +144,41 @@
 
     function playStream(ch) {
       currentUrl = ch.url;
-      document.getElementById("nowTitle").textContent = "Cargando: " + ch.name;
+      document.getElementById("nowTitle").textContent = "Conectando: " + ch.name;
       document.getElementById("liveTag").style.display = "inline-block";
       renderList();
 
       if (hls) { hls.destroy(); hls = null; }
       player.pause();
+      player.removeAttribute("src");
+      player.load();
 
       if (typeof Hls !== "undefined" && Hls.isSupported()) {
-        hls = new Hls();
+        hls = new Hls({ enableWorker: false });
         hls.loadSource(ch.url);
         hls.attachMedia(player);
         hls.on(Hls.Events.MANIFEST_PARSED, function() {
-          document.getElementById("nowTitle").textContent = ch.name;
+          document.getElementById("nowTitle").textContent = "Reproduciendo: " + ch.name;
           player.play().catch(function() {
-            document.getElementById("nowTitle").textContent = ch.name + " (Toca Play en el video)";
+            document.getElementById("nowTitle").textContent = ch.name + " (Pulsa el boton Play)";
           });
         });
         hls.on(Hls.Events.ERROR, function(event, data) {
           if (data.fatal) {
-            document.getElementById("nowTitle").textContent = "Error al cargar canal (enlace caido o bloqueado)";
+            document.getElementById("nowTitle").textContent = "Error: " + data.details;
           }
         });
-      } else {
+      } else if (player.canPlayType("application/vnd.apple.mpegurl")) {
         player.src = ch.url;
-        player.play().then(function() {
-          document.getElementById("nowTitle").textContent = ch.name;
-        }).catch(function() {
-          document.getElementById("nowTitle").textContent = ch.name + " (Toca Play)";
-        });
+        player.play();
+      } else {
+        document.getElementById("nowTitle").textContent = "Error: Navegador sin soporte HLS";
       }
     }
 
     function removeChannel(index) {
       channels.splice(index, 1);
-      localStorage.setItem("iptv_v3", JSON.stringify(channels));
+      localStorage.setItem("iptv_v4", JSON.stringify(channels));
       renderCats(); renderList();
     }
 
@@ -199,7 +202,7 @@
 
       if (url) {
         channels.unshift({ name: name || "Canal En Vivo", group: "Mis Enlaces", url: url });
-        localStorage.setItem("iptv_v3", JSON.stringify(channels));
+        localStorage.setItem("iptv_v4", JSON.stringify(channels));
         activeCat = "Todos"; renderCats(); renderList();
         playStream({ name: name || "Canal En Vivo", url: url });
         closeModal();
@@ -230,7 +233,7 @@
       }
       if (list.length === 0) { document.getElementById("errMsg").textContent = "Lista vacia o invalida."; return; }
       channels = list;
-      localStorage.setItem("iptv_v3", JSON.stringify(channels));
+      localStorage.setItem("iptv_v4", JSON.stringify(channels));
       activeCat = "Todos"; renderCats(); renderList(); closeModal();
     }
 
