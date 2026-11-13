@@ -87,13 +87,11 @@
       if (typeof videojs !== "undefined") {
         vjsPlayer = videojs("my-video", {
           fluid: false,
-          html5: {
-            vhs: { overrideNative: true }
-          }
+          html5: { vhs: { overrideNative: true } }
         });
       }
       try {
-        var saved = localStorage.getItem("iptv_v5");
+        var saved = localStorage.getItem("iptv_v6");
         channels = saved ? JSON.parse(saved) : defaultList.slice();
       } catch (e) { channels = defaultList.slice(); }
       renderCats();
@@ -164,7 +162,7 @@
 
     function removeChannel(index) {
       channels.splice(index, 1);
-      localStorage.setItem("iptv_v5", JSON.stringify(channels));
+      localStorage.setItem("iptv_v6", JSON.stringify(channels));
       renderCats(); renderList();
     }
 
@@ -188,7 +186,7 @@
 
       if (url) {
         channels.unshift({ name: name || "Canal En Vivo", group: "Mis Enlaces", url: url });
-        localStorage.setItem("iptv_v5", JSON.stringify(channels));
+        localStorage.setItem("iptv_v6", JSON.stringify(channels));
         activeCat = "Todos"; renderCats(); renderList();
         playStream({ name: name || "Canal En Vivo", url: url });
         closeModal();
@@ -219,7 +217,7 @@
       }
       if (list.length === 0) { document.getElementById("errMsg").textContent = "Lista vacia o invalida."; return; }
       channels = list;
-      localStorage.setItem("iptv_v5", JSON.stringify(channels));
+      localStorage.setItem("iptv_v6", JSON.stringify(channels));
       activeCat = "Todos"; renderCats(); renderList(); closeModal();
     }
   </script>
