@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>StreamBox IPTV</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+    body { background: #0f172a; color: #f8fafc; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    header { background: #1e293b; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+    .logo { font-size: 1.1rem; font-weight: bold; color: #38bdf8; }
+    .logo span { color: #ffffff; }
+    .btn-add { background: #2563eb; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; font-size: 0.8rem; }
+    .player-box { width: 100%; background: #000; position: relative; height: 220px; display: flex; align-items: center; justify-content: center; }
+    video { width: 100%; height: 100%; background: #000; }
+    .status-bar { background: #162032; padding: 8px 14px; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+    .live-tag { background: #dc2626; color: #fff; font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; }
+    .controls { padding: 10px 14px; background: #0f172a; border-bottom: 1px solid #334155; display: flex; flex-direction: column; gap: 8px; }
+    .search-input { width: 100%; padding: 9px 12px; border-radius: 6px; border: 1px solid #334155; background: #1e293b; color: #fff; font-size: 0.9rem; }
+    .categories { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
+    .cat-chip { background: #1e293b; color: #94a3b8; border: 1px solid #334155; padding: 5px 10px; border-radius: 16px; font-size: 0.75rem; white-space: nowrap; }
+    .cat-chip.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+    .channel-list { flex: 1; overflow-y: auto; padding: 10px 14px 60px 14px; display: flex; flex-direction: column; gap: 8px; }
+    .channel-item { display: flex; align-items: center; gap: 12px; background: #1e293b; padding: 10px; border-radius: 8px; border: 1px solid transparent; }
+    .channel-item.active { background: #334155; border-color: #38bdf8; }
+    .channel-icon { width: 40px; height: 40px; border-radius: 8px; background: #0f172a; color: #38bdf8; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem; flex-shrink: 0; }
+    .channel-info { flex: 1; overflow: hidden; }
+    .channel-name { font-weight: bold; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .channel-group { font-size: 0.75rem; color: #94a3b8; margin-top: 2px; }
+    .btn-del { background: #7f1d1d; color: #fecaca; border: none; padding: 6px 8px; border-radius: 6px; font-size: 0.75rem; }
+    .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; padding: 16px; z-index: 99; }
+    .modal-box { background: #1e293b; border: 1px solid #334155; border-radius: 10px; width: 100%; max-width: 380px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+    .modal-box input, .modal-box textarea { width: 100%; padding: 9px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: #fff; font-size: 0.85rem; }
+    .modal-btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">TV <span>StreamBox IPTV</span></div>
+    <button class="btn-add" onclick="openModal()">+ Agregar M3U8</button>
+  </header>
+
+  <div class="player-box">
+    <video id="player" controls playsinline autoplay webkit-playsinline></video>
+  </div>
+
+  <div class="status-bar">
+    <span id="nowTitle" style="font-weight:bold;">Toca un canal para reproducir</span>
+    <span id="liveTag" class="live-tag" style="display:none;">EN VIVO</span>
+  </div>
+
+  <div class="controls">
+    <input type="text" id="searchBox" class="search-input" placeholder="Buscar canal..." oninput="renderList()">
+    <div class="categories" id="catBar"></div>
+  </div>
+
+  <div class="channel-list" id="listContainer"></div>
+
+  <div id="modal" class="modal-bg">
+    <div class="modal-box">
+      <h3 style="font-size:1rem;">Agregar Canal o Lista</h3>
+      <p style="font-size:0.75rem; color:#38bdf8;">1. Enlace directo .m3u8:</p>
+      <input type="text" id="inName" placeholder="Nombre (Ej. Canal Noticias)">
+      <input type="url" id="inUrl" placeholder="https://.../stream.m3u8">
+      
+      <p style="font-size:0.75rem; color:#38bdf8; margin-top:4px;">2. Lista M3U (URL o texto):</p>
+      <input type="url" id="inM3uUrl" placeholder="https://.../lista.m3u">
+      <textarea id="inM3uText" rows="3" placeholder="O pega aqui el contenido #EXTM3U"></textarea>
+      
+      <div id="errMsg" style="font-size:0.75rem; color:#f87171;"></div>
+      <div class="modal-btns">
+        <button style="background:#334155; color:#fff; border:none; padding:8px 12px; border-radius:6px;" onclick="closeModal()">Cerrar</button>
+        <button class="btn-add" onclick="saveData()">Guardar</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    var defaultList = [
+      { name: "Mux Test Stream (HD)", group: "Pruebas", url: "https://mux.dev" },
+      { name: "Sintel Pelicula Demo", group: "Cine", url: "https://akamaihd.net" },
+      { name: "Tears of Steel (Sci-Fi)", group: "Cine", url: "https://unified-streaming.com" },
+      { name: "Red Bull TV En Vivo", group: "Deportes", url: "https://akamaized.net" }
+    ];
+
+    var channels = [];
+    var activeCat = "Todos";
+    var currentUrl = "";
+    var player = document.getElementById("player");
+
+    function startApp() {
+      try {
+        var saved = localStorage.getItem("iptv_v2");
+        channels = saved ? JSON.parse(saved) : defaultList.slice();
+      } catch (e) {
+        channels = defaultList.slice();
+      }
+      renderCats();
+      renderList();
+    }
+
+    function renderCats() {
+      var cats = ["Todos"];
+      for (var i = 0; i < channels.length; i++) {
+        var g = channels[i].group || "General";
+        if (cats.indexOf(g) === -1) cats.push(g);
+      }
+      var bar = document.getElementById("catBar");
+      bar.innerHTML = "";
+      for (var j = 0; j < cats.length; j++) {
+        (function(catName) {
+          var b = document.createElement("button");
+          b.className = "cat-chip" + (catName === activeCat ? " active" : "");
+          b.textContent = catName;
+          b.onclick = function() { activeCat = catName; renderCats(); renderList(); };
+          bar.appendChild(b);
+        })(cats[j]);
+      }
+    }
+
+    function renderList() {
+      var q = document.getElementById("searchBox").value.toLowerCase();
+      var box = document.getElementById("listContainer");
+      box.innerHTML = "";
+
+      for (var i = 0; i < channels.length; i++) {
+        var ch = channels[i];
+        var matchCat = (activeCat === "Todos" || (ch.group || "General") === activeCat);
+        var matchTxt = ch.name.toLowerCase().indexOf(q) !== -1;
+        if (!matchCat || !matchTxt) continue;
+
+        (function(item, idx) {
+          var row = document.createElement("div");
+          row.className = "channel-item" + (item.url === currentUrl ? " active" : "");
+          
+          var icon = document.createElement("div");
+          icon.className = "channel-icon";
+          icon.textContent = item.name.substring(0, 2).toUpperCase();
+          icon.onclick = function() { playStream(item); };
+
+          var info = document.createElement("div");
+          info.className = "channel-info";
+          info.innerHTML = '<div class="channel-name">' + item.name + '</div><div class="channel-group">' + (item.group || "General") + '</div>';
+          info.onclick = function() { playStream(item); };
+
+          var del = document.createElement("button");
+          del.className = "btn-del";
+          del.textContent = "X";
+          del.onclick = function() { removeChannel(idx); };
+
+          row.appendChild(icon);
+          row.appendChild(info);
+          row.appendChild(del);
+          box.appendChild(row);
+        })(ch, i);
+      }
+    }
+
+    function playStream(ch) {
+      currentUrl = ch.url;
+      document.getElementById("nowTitle").textContent = "Cargando: " + ch.name;
+      document.getElementById("liveTag").style.display = "inline-block";
+      renderList();
+
+      player.pause();
+      player.removeAttribute("src");
+      player.load();
+      player.src = ch.url;
+      player.load();
+      
+      var playPromise = player.play();
+      if (playPromise !== undefined) {
+        playPromise.then(function() {
+          document.getElementById("nowTitle").textContent = ch.name;
+        }).catch(function() {
+          document.getElementById("nowTitle").textContent = ch.name + " (Pulsa Play en el video)";
+        });
+      }
+    }
+
+    function removeChannel(index) {
+      channels.splice(index, 1);
+      localStorage.setItem("iptv_v2", JSON.stringify(channels));
+      renderCats();
+      renderList();
+    }
+
+    function openModal() {
+      document.getElementById("errMsg").textContent = "";
+      document.getElementById("inName").value = "";
+      document.getElementById("inUrl").value = "";
+      document.getElementById("inM3uUrl").value = "";
+      document.getElementById("inM3uText").value = "";
+      document.getElementById("modal").style.display = "flex";
+    }
+
+    function closeModal() {
+      document.getElementById("modal").style.display = "none";
+    }
+
+    function saveData() {
+      var name = document.getElementById("inName").value.trim();
+      var url = document.getElementById("inUrl").value.trim();
+      var m3uUrl = document.getElementById("inM3uUrl").value.trim();
+      var m3uText = document.getElementById("inM3uText").value.trim();
+      var err = document.getElementById("errMsg");
+
+      if (url) {
+        var exists = false;
+        for (var i = 0; i < channels.length; i++) {
+          if (channels[i].url === url) { exists = true; break; }
+        }
+        if (!exists) {
+          channels.unshift({ name: name || "Canal En Vivo", group: "Mis Enlaces", url: url });
+          localStorage.setItem("iptv_v2", JSON.stringify(channels));
+        }
+        activeCat = "Todos";
+        renderCats();
+        renderList();
+        playStream({ name: name || "Canal En Vivo", url: url });
+        closeModal();
+        return;
+      }
+
+      if (m3uText) {
+        parseAndSaveM3U(m3uText);
+        return;
+      }
+
+      if (m3uUrl) {
+        err.textContent = "Descargando lista...";
+        fetch(m3uUrl).then(function(r) { return r.text(); }).then(function(txt) {
+          parseAndSaveM3U(txt);
+        }).catch(function() {
+          err.textContent = "No se pudo descargar. Pega el texto M3U abajo.";
+        });
+        return;
+      }
+
+      err.textContent = "Ingresa un enlace .m3u8 o una lista M3U.";
+    }
+
+    function parseAndSaveM3U(txt) {
+      var lines = txt.split(/\r?\n/);
+      var list = [];
+      var cur = null;
+      for (var i = 0; i < lines.length; i++) {
+        var l = lines[i].trim();
+        if (l.indexOf("#EXTINF:") === 0) {
+          var title = l.split(",").pop().trim() || "Canal";
+          cur = { name: title, group: "Lista M3U", url: "" };
+        } else if (l && l.indexOf("#") !== 0 && cur) {
+          cur.url = l;
+          list.push(cur);
+          cur = null;
+        }
+      }
+      if (list.length === 0) {
+        document.getElementById("errMsg").textContent = "Lista vacia o formato invalido.";
+        return;
+      }
+      channels = list;
+      localStorage.setItem("iptv_v2", JSON.stringify(channels));
+      activeCat = "Todos";
+      renderCats();
+      renderList();
+      closeModal();
+    }
+
+    startApp();
+  </script>
+</body>
+</html>
