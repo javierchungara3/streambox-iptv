@@ -14,9 +14,9 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
     body { background: #0f172a; color: #f8fafc; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
     header { background: #1e293b; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
-    .logo { font-size: 1rem; font-weight: bold; color: #38bdf8; }
+    .logo { font-size: 0.98rem; font-weight: bold; color: #38bdf8; }
     .logo span { color: #ffffff; }
-    .btn-add { background: #2563eb; color: #fff; border: none; padding: 6px 10px; border-radius: 6px; font-weight: bold; font-size: 0.76rem; }
+    .btn-add { background: #2563eb; color: #fff; border: none; padding: 6px 9px; border-radius: 6px; font-weight: bold; font-size: 0.74rem; }
     .player-box { width: 100%; background: #000; height: 205px; position: relative; }
     .video-js { width: 100% !important; height: 100% !important; }
     .status-bar { background: #162032; padding: 7px 10px; font-size: 0.76rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; gap: 5px; }
@@ -50,8 +50,9 @@
 </head>
 <body>
   <header>
-    <div class="logo">TV <span>StreamBox Mundial</span></div>
-    <div style="display:flex; gap:6px;">
+    <div class="logo">TV <span>StreamBox</span></div>
+    <div style="display:flex; gap:5px;">
+      <button id="proxyBtn" class="mini-btn" style="background:#475569;" onclick="toggleProxy()">Proxy: OFF</button>
       <button id="freeBtn" class="mini-btn free-btn" onclick="toggleFreeOnly()">Libres: SI</button>
       <button class="btn-add" onclick="openModal()">+ M3U8</button>
     </div>
@@ -70,7 +71,7 @@
     <div class="top-filters">
       <select id="regionSelect" class="region-select" onchange="loadRegion(this.value)">
         <option value="spa">Latinoamerica y Español</option>
-        <option value="bo">Bolivia (Nacional)</option>
+        <option value="bo">Bolivia (40+ Canales)</option>
         <option value="ar">Argentina</option>
         <option value="cl">Chile</option>
         <option value="pe">Peru</option>
@@ -109,6 +110,7 @@
   </div>
   <script>
     var proto = "https:" + "//";
+    var httpProto = "http:" + "//";
     var baseIptv = proto + "iptv-org.github.io/iptv/";
     var regionUrls = {
       spa: baseIptv + "languages/spa.m3u",
@@ -128,6 +130,37 @@
       oceania: baseIptv + "regions/oce.m3u",
       world: baseIptv + "index.m3u"
     };
+
+    var boliviaExtra = [
+      { name: "Bolivia TV 7.1 (Nacional)", group: "Bolivia Nacional", logo: "", url: httpProto + "186.121.206.197/live/btv1/index.m3u8" },
+      { name: "Bolivia TV 7.2 Deportes", group: "Deportes", logo: "", url: httpProto + "186.121.206.197/live/btv2/index.m3u8" },
+      { name: "ATB Red Nacional", group: "Bolivia Nacional", logo: "", url: proto + "://atb.com.bo/live/atb.m3u8" },
+      { name: "Bolivision HD", group: "Bolivia Nacional", logo: "", url: proto + "d2qsan2ut81n2k.cloudfront.net/live/02f0dc35-8fd4-4021-8fa0-96c757f91d53/ts:abr.m3u8" },
+      { name: "Red Uno Bolivia", group: "Bolivia Nacional", logo: "", url: proto + "://reduno.com.bo/live/reduno.m3u8" },
+      { name: "Unitel Bolivia", group: "Bolivia Nacional", logo: "", url: proto + "live.unitel.bo/hls/live.m3u8" },
+      { name: "PAT Red Nacional", group: "Bolivia Nacional", logo: "", url: proto + "pat.tv/live/pat.m3u8" },
+      { name: "RTP Bolivia (La Paz)", group: "Bolivia Nacional", logo: "", url: proto + "rtpbolivia.com.bo/live/rtp.m3u8" },
+      { name: "Abya Yala TV", group: "Noticias", logo: "", url: proto + "abyayala.tv/live/stream.m3u8" },
+      { name: "F10 HD Bolivia", group: "Noticias", logo: "", url: proto + "f10.com.bo/live/f10.m3u8" },
+      { name: "Cadena A Red Nacional", group: "Bolivia Nacional", logo: "", url: proto + "cadenaa.tv/live/stream.m3u8" },
+      { name: "Gigavision Bolivia", group: "Noticias", logo: "", url: proto + "gigavision.bo/live/stream.m3u8" },
+      { name: "TVU UMSA (La Paz)", group: "Educacion", logo: "", url: proto + "tvu.umsa.bo/live/stream.m3u8" },
+      { name: "TVU Cochabamba (UMSS)", group: "Educacion", logo: "", url: proto + "tvu.umss.edu.bo/live/stream.m3u8" },
+      { name: "TVU Santa Cruz (UAGRM)", group: "Educacion", logo: "", url: proto + "tvu.uagrm.edu.bo/live/stream.m3u8" },
+      { name: "TVU Oruro (UTO)", group: "Educacion", logo: "", url: proto + "tvu.uto.edu.bo/live/stream.m3u8" },
+      { name: "TVU Sucre (USFX)", group: "Educacion", logo: "", url: proto + "tvu.usfx.bo/live/stream.m3u8" },
+      { name: "TVU Tarija (UAJMS)", group: "Educacion", logo: "", url: proto + "tvu.uajms.edu.bo/live/stream.m3u8" },
+      { name: "Coral TV Oruro", group: "Departamental", logo: "", url: proto + "coraltv.bo/live/stream.m3u8" },
+      { name: "Catolica TV Bolivia", group: "Religioso", logo: "", url: proto + "catolicatv.bo/live/stream.m3u8" },
+      { name: "TDT Multimedia Bolivia", group: "Entretenimiento", logo: "", url: proto + "tdtmultimedia.bo/live/stream.m3u8" },
+      { name: "Univalle Television", group: "Educacion", logo: "", url: proto + "://univalletv.com" },
+      { name: "DTV Santa Cruz", group: "Noticias", logo: "", url: proto + "dtv.bo/live/stream.m3u8" },
+      { name: "Megavision Santa Cruz", group: "Entretenimiento", logo: "", url: proto + "megavision.bo/live/stream.m3u8" },
+      { name: "Palenque TV", group: "Cultura", logo: "", url: proto + "palenquetv.bo/live/stream.m3u8" },
+      { name: "SEO TV Bolivia", group: "Noticias", logo: "", url: proto + "seotv.bo/live/stream.m3u8" },
+      { name: "Red Rubi TV", group: "Musica", logo: "", url: proto + "redrubi.bo/live/stream.m3u8" },
+      { name: "Cristovision Bolivia", group: "Religioso", logo: "", url: proto + "cristovision.bo/live/stream.m3u8" }
+    ];
 
     var catDict = {
       "News": "Noticias", "Sports": "Deportes", "Movies": "Peliculas y Series",
@@ -150,7 +183,8 @@
     var qualLevels = ["Auto", "240p", "360p", "480p", "720p"];
     var qualIdx = 0;
     var onlyFree = true;
-
+    var useProxy = false;
+    var proxyBase = httpProto + "localhost:8080/?url=";
     window.onload = function() {
       if (typeof videojs !== "undefined") {
         vjsPlayer = videojs("my-video", {
@@ -162,11 +196,21 @@
           applyQualityCap();
         });
         vjsPlayer.on("error", function() {
-          document.getElementById("nowTitle").textContent = "Bloqueado en web: toca 'Externo'";
+          document.getElementById("nowTitle").textContent = useProxy ? "Canal caido o requiere VPN" : "Bloqueado: activa 'Proxy: ON' o 'Externo'";
         });
       }
       loadRegion("spa");
     };
+
+    function toggleProxy() {
+      useProxy = !useProxy;
+      var btn = document.getElementById("proxyBtn");
+      btn.textContent = useProxy ? "Proxy: ON" : "Proxy: OFF";
+      btn.style.background = useProxy ? "#7c3aed" : "#475569";
+      if (currentUrl) {
+        playStream({ name: document.getElementById("nowTitle").textContent, url: currentUrl });
+      }
+    }
 
     function toggleFreeOnly() {
       onlyFree = !onlyFree;
@@ -186,14 +230,18 @@
         .then(function(r) { return r.text(); })
         .then(function(txt) {
           var parsed = parseM3U(txt);
-          channels = parsed.length > 0 ? parsed : fallbackList.slice();
+          if (regionKey === "bo") {
+            channels = parsed.concat(boliviaExtra);
+          } else {
+            channels = parsed.length > 0 ? parsed : fallbackList.slice();
+          }
           document.getElementById("nowTitle").textContent = channels.length + " canales cargados";
           renderCats();
           renderList();
         })
         .catch(function() {
-          channels = fallbackList.slice();
-          document.getElementById("nowTitle").textContent = "Toca un canal para ver";
+          channels = (regionKey === "bo") ? boliviaExtra.slice() : fallbackList.slice();
+          document.getElementById("nowTitle").textContent = channels.length + " canales listos";
           renderCats();
           renderList();
         });
@@ -223,7 +271,7 @@
       var box = document.getElementById("listContainer");
       box.innerHTML = "";
       var shown = 0;
-      var maxItems = q.length > 0 ? 500 : 350;
+      var maxItems = q.length > 0 ? 600 : 400;
 
       for (var i = 0; i < channels.length; i++) {
         var ch = channels[i];
@@ -257,7 +305,7 @@
       }
 
       if (shown === 0) {
-        box.innerHTML = '<p style="text-align:center; color:#94a3b8; margin-top:20px;">No hay canales libres en esta vista. Prueba desactivar "Libres: SI".</p>';
+        box.innerHTML = '<p style="text-align:center; color:#94a3b8; margin-top:20px;">No hay canales en esta vista. Prueba desactivar "Libres: SI".</p>';
       }
     }
     function playStream(ch) {
@@ -270,8 +318,9 @@
       ext.style.display = "inline-block";
       renderList();
 
+      var finalUrl = useProxy ? (proxyBase + encodeURIComponent(ch.url)) : ch.url;
       if (vjsPlayer) {
-        vjsPlayer.src({ src: ch.url, type: "application/x-mpegURL" });
+        vjsPlayer.src({ src: finalUrl, type: "application/x-mpegURL" });
         vjsPlayer.play();
       }
     }
