@@ -1,0 +1,119 @@
+{
+  "nombre": "StreamBox IPTV Mundial",
+  "idioma": "es",
+  "continentes": [
+    {
+      "id": "sudamerica",
+      "nombre": "Sudamérica",
+      "paises": [
+        {"codigo": "ar", "nombre": "Argentina"},
+        {"codigo": "bo", "nombre": "Bolivia"},
+        {"codigo": "br", "nombre": "Brasil"},
+        {"codigo": "cl", "nombre": "Chile"},
+        {"codigo": "co", "nombre": "Colombia"},
+        {"codigo": "ec", "nombre": "Ecuador"},
+        {"codigo": "py", "nombre": "Paraguay"},
+        {"codigo": "pe", "nombre": "Perú"},
+        {"codigo": "uy", "nombre": "Uruguay"},
+        {"codigo": "ve", "nombre": "Venezuela"}
+      ]
+    },
+    {
+      "id": "centroamerica",
+      "nombre": "América Central y Caribe",
+      "paises": [
+        {"codigo": "pa", "nombre": "Panamá"},
+        {"codigo": "sv", "nombre": "El Salvador"},
+        {"codigo": "cr", "nombre": "Costa Rica"},
+        {"codigo": "gt", "nombre": "Guatemala"},
+        {"codigo": "hn", "nombre": "Honduras"},
+        {"codigo": "ni", "nombre": "Nicaragua"},
+        {"codigo": "cu", "nombre": "Cuba"},
+        {"codigo": "do", "nombre": "República Dominicana"}
+      ]
+    },
+    {
+      "id": "norteamerica",
+      "nombre": "Norteamérica",
+      "paises": [
+        {"codigo": "mx", "nombre": "México"},
+        {"codigo": "us", "nombre": "Estados Unidos"},
+        {"codigo": "ca", "nombre": "Canadá"}
+      ],
+      "regiones": [
+        {"id": "alaska", "nombre": "Alaska", "pais": "us"}
+      ]
+    },
+    {
+      "id": "europa",
+      "nombre": "Europa",
+      "paises": [
+        {"codigo": "es", "nombre": "España"},
+        {"codigo": "fr", "nombre": "Francia"},
+        {"codigo": "de", "nombre": "Alemania"},
+        {"codigo": "it", "nombre": "Italia"},
+        {"codigo": "gb", "nombre": "Reino Unido"},
+        {"codigo": "ru", "nombre": "Rusia"},
+        {"codigo": "ua", "nombre": "Ucrania"},
+        {"codigo": "pt", "nombre": "Portugal"},
+        {"codigo": "nl", "nombre": "Países Bajos"},
+        {"codigo": "ch", "nombre": "Suiza"}
+      ]
+    },
+    {
+      "id": "africa",
+      "nombre": "África",
+      "paises": [
+        {"codigo": "eg", "nombre": "Egipto"},
+        {"codigo": "za", "nombre": "Sudáfrica"},
+        {"codigo": "ma", "nombre": "Marruecos"},
+        {"codigo": "ng", "nombre": "Nigeria"},
+        {"codigo": "ke", "nombre": "Kenia"},
+        {"codigo": "dz", "nombre": "Argelia"}
+      ]
+    },
+    {
+      "id": "asia",
+      "nombre": "Asia",
+      "paises": [
+        {"codigo": "cn", "nombre": "China"},
+        {"codigo": "jp", "nombre": "Japón"},
+        {"codigo": "kr", "nombre": "Corea del Sur"},
+        {"codigo": "in", "nombre": "India"},
+        {"codigo": "il", "nombre": "Israel"},
+        {"codigo": "iq", "nombre": "Irak"},
+        {"codigo": "ir", "nombre": "Irán"},
+        {"codigo": "tr", "nombre": "Turquía"},
+        {"codigo": "th", "nombre": "Tailandia"}
+      ]
+    },
+    {
+      "id": "oceania",
+      "nombre": "Oceanía",
+      "paises": [
+        {"codigo": "au", "nombre": "Australia"},
+        {"codigo": "nz", "nombre": "Nueva Zelanda"}
+      ]
+    }
+  ],
+  "categorias": [
+    {"id": "news", "nombre": "Noticias"},
+    {"id": "sports", "nombre": "Deportes"},
+    {"id": "series", "nombre": "Series"},
+    {"id": "movies", "nombre": "Películas"},
+    {"id": "documentary", "nombre": "Documentales"},
+    {"id": "history", "nombre": "Historia"},
+    {"id": "entertainment", "nombre": "Entretenimiento"},
+    {"id": "kids", "nombre": "Infantil"},
+    {"id": "education", "nombre": "Educación"},
+    {"id": "music", "nombre": "Música"},
+    {"id": "culture", "nombre": "Cultura"},
+    {"id": "science", "nombre": "Ciencia y tecnología"},
+    {"id": "travel", "nombre": "Viajes"},
+    {"id": "nature", "nombre": "Naturaleza"},
+    {"id": "cooking", "nombre": "Cocina"},
+    {"id": "religion", "nombre": "Religión"},
+    {"id": "business", "nombre": "Economía y negocios"},
+    {"id": "general", "nombre": "General"}
+  ]
+}
